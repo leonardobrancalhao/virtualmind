@@ -1,12 +1,14 @@
 package com.virtualmind.test.service;
 
 import com.virtualmind.test.dto.TopicCreationDTO;
+import com.virtualmind.test.dto.TopicUpdateDTO;
 import com.virtualmind.test.model.Topic;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 @Service
@@ -25,15 +27,20 @@ public class TopicService {
     }
 
     @Transactional
-    public Topic update(Integer id, String name) throws Exception {
-        Topic topicDB = findById(id);
-        topicDB.setName(name);
-        return topicDB;
+    public void updateTopic(Integer topicId, TopicUpdateDTO updated) {
+        Topic topic = entityManager.find(Topic.class, topicId);
+        if (topic != null) {
+            topic.setName(updated.getName());
+        } else {
+            throw new EntityNotFoundException(String.format("Topic {}: ", topicId));
+        }
     }
+
 
     public Topic findById(Integer id) throws Exception {
         Topic topic = entityManager.find(Topic.class, id);
         if (topic == null) throw new NotFoundException("Topic not found");
         return topic;
     }
+
 }
